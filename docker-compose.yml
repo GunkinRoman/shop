@@ -1,0 +1,47 @@
+version: '3.7'
+
+services:
+  main_pg_db:
+    build:
+      context: ./Postgres
+      dockerfile: Dockerfile
+    ports:
+      - ${POSTGRES_MAIN_DB_PORT}:5432
+    restart: always
+    volumes:
+      - shop_pg_data:/var/lib/postgresql/data
+    hostname: ${POSTGRES_MAIN_DB_HOST_NAME}
+    container_name: ${POSTGRES_MAIN_DB_HOST_NAME}_container
+    networks:
+      - shop_network
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_MAIN_DB_PASSWORD}
+    env_file:
+      - ./.env
+
+  project_backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - PORT=${BACKEND_APP_PORT}
+    container_name: project_backend
+    volumes:
+      - ./src:/src
+    ports:
+      - ${BACKEND_APP_PORT}:5000
+    depends_on:
+      - main_pg_db
+    networks:
+      - shop_network
+    env_file:
+      - ./.env
+    command: "python main.py"
+    restart: "always"
+
+networks:
+  shop_network:
+
+
+volumes:
+  shop_pg_data:

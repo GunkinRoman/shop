@@ -1,0 +1,15 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "project-main_pg_db",
+            "group": "project-main_pg_db",
+            "database": "social_network_db",
+            "username": "social_network_user",
+            "password": "social_network_user_password123"
+        }
+    ]
+}

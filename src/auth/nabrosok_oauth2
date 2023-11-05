@@ -1,0 +1,69 @@
+# import asyncpg
+# import asyncio
+# from fastapi import FastAPI
+# from fastapi.responses import HTMLResponse
+# from fastapi.security import OAuth2AuthorizationCodeBearer, OAuth2AuthorizationCodeRequestForm
+
+# app = FastAPI()
+
+# oauth2_scheme = OAuth2AuthorizationCodeBearer(
+#     authorizationUrl="https://example.com/oauth/authorize",
+#     tokenUrl="https://example.com/oauth/token",
+#     clientId="your_client_id",
+#     clientSecret="your_client_secret",
+#     scopes={"read": "Read access", "write": "Write access"}
+# )
+
+# @app.get("/")
+# async def read_root():
+#     return {"Hello": "World"}
+
+# @app.get("/login")
+# async def login(response: HTMLResponse):
+#     html_content = """
+#         <html>
+#             <body>
+#                 <form action="/authorize" method="post">
+#                     <input type="text" name="username" placeholder="Username"><br>
+#                     <input type="password" name="password" placeholder="Password"><br>
+#                     <button type="submit">Login</button>
+#                 </form>
+#             </body>
+#         </html>
+#     """
+#     response.content = html_content
+#     return response
+
+# @app.post("/authorize")
+# async def authorize(form_data: OAuth2AuthorizationCodeRequestForm = Depends()):
+#     # Проверка учетных данных пользователя
+#     if form_data.username == "your_username" and form_data.password == "your_password":
+#         # Генерация кода авторизации
+#         authorization_code = "your_authorization_code"
+
+#         # Сохранение кода авторизации в базе данных
+#         conn = await asyncpg.connect(user='your_username', password='your_password', database='your_database_name', host='your_host')
+#         query = "INSERT INTO authorization_codes (code, user_id) VALUES ($1, $2)"
+#         await conn.execute(query, authorization_code, form_data.username)
+#         await conn.close()
+
+#         # Перенаправление пользователя на страницу авторизации OAuth2
+#         redirect_url = oauth2_scheme.authorization_url + "?response_type=code&client_id=" + oauth2_scheme.client_id + "&redirect_uri=https://example.com/callback&state=" + authorization_code
+#         return RedirectResponse(url=redirect_url)
+
+# @app.get("/callback")
+# async def callback(code: str, state: str, token: str = Depends(oauth2_scheme)):
+#     # Проверка кода авторизации
+#     conn = await asyncpg.connect(user='your_username', password='your_password', database='your_database_name', host='your_host')
+#     query = "SELECT * FROM authorization_codes WHERE code = $1"
+#     result = await conn.fetchrow(query, code)
+#     await conn.close()
+
+#     if result is None:
+#         return {"error": "Invalid authorization code"}
+
+#     # Получение токена доступа
+#     access_token = oauth2_scheme.get_access_token(token)
+
+#     # Возвращение данных пользователя
+#     return {"access_token": access_token, "token_type": "bearer"}
